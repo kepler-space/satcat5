@@ -253,7 +253,7 @@ end component;
 
 -- Reset signals for each clock domain.
 signal reset_req    : std_logic;
-signal async_reset  : std_logic;
+signal async_reset_sc  : std_logic;
 signal tx_reset_p   : std_logic;
 signal rx_reset_p   : std_logic;
 
@@ -294,7 +294,7 @@ attribute dont_touch of gtrefclk_bp, gtrefclk_bn: signal is "true";
 begin
 
 -- Enforce minimum duration for MGT reset, including power-on-reset.
-u_reset_req : sync_reset
+u_reset_req : sync_reset_sc
     generic map(HOLD_MIN => 80) -- 1.0 usec @ 80 MHz
     port map(
     in_reset_p  => port_shdn,
@@ -302,17 +302,17 @@ u_reset_req : sync_reset
     out_clk     => gtsysclk);
 
 -- Reset signals for each clock domain.
-async_reset <= reset_req or not (gt_ready_rx and gt_ready_tx);
+async_reset_sc <= reset_req or not (gt_ready_rx and gt_ready_tx);
 
-u_rx_reset : sync_reset
+u_rx_reset : sync_reset_sc
     port map(
-    in_reset_p  => async_reset,
+    in_reset_p  => async_reset_sc,
     out_reset_p => rx_reset_p,
     out_clk     => rx_clk125);
 
-u_tx_reset : sync_reset
+u_tx_reset : sync_reset_sc
     port map(
-    in_reset_p  => async_reset,
+    in_reset_p  => async_reset_sc,
     out_reset_p => tx_reset_p,
     out_clk     => tx_clk125);
 
@@ -632,11 +632,11 @@ gen_gty0 : if MGT_TYPE = "gty" generate
         gtrefclk0_in(0)                     => gtrefclk_bb,
         gtwiz_buffbypass_rx_done_out        => open,
         gtwiz_buffbypass_rx_error_out       => open,
-        gtwiz_buffbypass_rx_reset_in(0)     => async_reset,
+        gtwiz_buffbypass_rx_reset_in(0)     => async_reset_sc,
         gtwiz_buffbypass_rx_start_user_in   => (others => '0'),
         gtwiz_buffbypass_tx_done_out        => open,
         gtwiz_buffbypass_tx_error_out       => open,
-        gtwiz_buffbypass_tx_reset_in(0)     => async_reset,
+        gtwiz_buffbypass_tx_reset_in(0)     => async_reset_sc,
         gtwiz_buffbypass_tx_start_user_in   => (others => '0'),
         gtwiz_reset_all_in(0)               => reset_req,
         gtwiz_reset_clk_freerun_in(0)       => gtsysclk,
@@ -692,11 +692,11 @@ gen_gty0p : if MGT_TYPE = "gty_plus" generate
         gtrefclk0_in(0)                     => gtrefclk_bb,
         gtwiz_buffbypass_rx_done_out        => open,
         gtwiz_buffbypass_rx_error_out       => open,
-        gtwiz_buffbypass_rx_reset_in(0)     => async_reset,
+        gtwiz_buffbypass_rx_reset_in(0)     => async_reset_sc,
         gtwiz_buffbypass_rx_start_user_in   => (others => '0'),
         gtwiz_buffbypass_tx_done_out        => open,
         gtwiz_buffbypass_tx_error_out       => open,
-        gtwiz_buffbypass_tx_reset_in(0)     => async_reset,
+        gtwiz_buffbypass_tx_reset_in(0)     => async_reset_sc,
         gtwiz_buffbypass_tx_start_user_in   => (others => '0'),
         gtwiz_reset_all_in(0)               => reset_req,
         gtwiz_reset_clk_freerun_in(0)       => gtsysclk,

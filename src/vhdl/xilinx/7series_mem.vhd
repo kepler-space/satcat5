@@ -74,7 +74,7 @@ library ieee;
 use     ieee.numeric_std.all;
 use     ieee.std_logic_1164.all;
 
-entity infer_dpram is
+entity infer_dpram_sc is
     generic (
     AWIDTH  : positive;             -- Address width (bits)
     DWIDTH  : positive;             -- Data width (bits)
@@ -90,9 +90,9 @@ entity infer_dpram is
     rd_addr : in  unsigned(AWIDTH-1 downto 0);
     rd_en   : in  std_logic := '1';
     rd_val  : out std_logic_vector(DWIDTH-1 downto 0));
-end infer_dpram;
+end infer_dpram_sc;
 
-architecture infer_dpram of infer_dpram is
+architecture infer_dpram_sc of infer_dpram_sc is
 
 subtype word_t is std_logic_vector(DWIDTH-1 downto 0);
 type dp_ram_t is array(0 to 2**AWIDTH-1) of word_t;
@@ -139,7 +139,7 @@ begin
     end if;
 end process;
 
-end infer_dpram;
+end infer_dpram_sc;
 
 ---------------------------------------------------------------------
 
@@ -149,7 +149,7 @@ use     ieee.std_logic_1164.all;
 library unisim;
 use     unisim.vcomponents.all;
 
-entity dpram is
+entity dpram_sc is
     generic (
     AWIDTH  : positive;             -- Address width (bits)
     DWIDTH  : positive;             -- Data width (bits)
@@ -165,9 +165,9 @@ entity dpram is
     rd_addr : in  unsigned(AWIDTH-1 downto 0);
     rd_en   : in  std_logic := '1';
     rd_val  : out std_logic_vector(DWIDTH-1 downto 0));
-end dpram;
+end dpram_sc;
 
-architecture xilinx of dpram is
+architecture xilinx of dpram_sc is
 
 subtype word_t is std_logic_vector(DWIDTH-1 downto 0);
 signal rd_raw, rd_reg, wr_raw, wr_reg : word_t := (others => '0');
@@ -271,7 +271,7 @@ end generate;
 
 gen_big : if (AWIDTH > 7) generate
     -- Above this size, infer BRAM instead.
-    u_bram : entity work.infer_dpram
+    u_bram : entity work.infer_dpram_sc
         generic map(
         AWIDTH      => AWIDTH,
         DWIDTH      => DWIDTH,

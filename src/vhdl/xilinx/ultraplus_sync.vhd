@@ -214,7 +214,7 @@ use     IEEE.STD_LOGIC_1164.ALL;
 use     work.common_primitives.sync_buffer;
 use     work.common_functions.boolean_to_string;
 
-entity sync_reset is
+entity sync_reset_sc is
     generic(
     HOLD_MIN    : integer := 7;
     KEEP_ATTR   : boolean := true);
@@ -222,11 +222,11 @@ entity sync_reset is
     in_reset_p  : in  std_logic;
     out_reset_p : out std_logic;
     out_clk     : in  std_logic);
-end sync_reset;
+end sync_reset_sc;
 
-architecture sync_reset of sync_reset is
+architecture sync_reset_sc of sync_reset_sc is
 
-signal sync_reset_p : std_logic := '0';
+signal sync_reset_sc_p : std_logic := '0';
 signal out_reset_i  : std_logic := '1';
 signal countdown    : integer range 0 to HOLD_MIN := HOLD_MIN;
 
@@ -247,7 +247,7 @@ begin
 u_sync : sync_buffer
     port map(
     in_flag     => in_reset_p,
-    out_flag    => sync_reset_p,
+    out_flag    => sync_reset_sc_p,
     out_clk     => out_clk,
     reset_p     => '0');
 
@@ -258,7 +258,7 @@ begin
         out_reset_i <= '1';
         countdown   <= HOLD_MIN;
     elsif rising_edge(out_clk) then
-        if (sync_reset_p = '1') then
+        if (sync_reset_sc_p = '1') then
             out_reset_i <= '1';
             countdown   <= HOLD_MIN;
         elsif (countdown /= 0) then

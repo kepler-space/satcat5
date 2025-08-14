@@ -223,7 +223,7 @@ tx_ctrl.txerr   <= '0';
 tx_ctrl.reset_p <= port_reset_p;
 
 -- Hold port reset at least N clock cycles.
-u_rst : sync_reset
+u_rst : sync_reset_sc
     port map(
     in_reset_p  => cfg_cmd.reset_p,
     out_reset_p => port_reset_p,
@@ -432,8 +432,8 @@ gen_lane : for n in 0 to RAM_BYTES-1 generate
 end generate;
 
 -- Platform-specific dual-port block RAM.
-gen_dpram : for n in 0 to 3 generate
-    u_rxbuff : dpram
+gen_dpram_sc : for n in 0 to 3 generate
+    u_rxbuff : dpram_sc
         generic map(
         AWIDTH  => RAM_ADDRW,
         DWIDTH  => 8,
@@ -448,7 +448,7 @@ gen_dpram : for n in 0 to 3 generate
         rd_addr => cfg_addr,
         rd_val  => cfg_rxdata(8*n+7 downto 8*n));
 
-    u_txbuff : dpram
+    u_txbuff : dpram_sc
         generic map(
         AWIDTH  => RAM_ADDRW,
         DWIDTH  => 8,

@@ -314,7 +314,7 @@ begin
 end process;
 
 -- Synchronize the external reset signal.
-u_rsync : sync_reset
+u_rsync : sync_reset_sc
     port map(
     in_reset_p  => core_reset_p,
     out_reset_p => core_reset_sync,

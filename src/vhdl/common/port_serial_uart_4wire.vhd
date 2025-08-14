@@ -56,7 +56,7 @@ use     ieee.numeric_std.all;
 use     work.cfgbus_common.all;
 use     work.common_functions.all;
 use     work.common_primitives.sync_buffer;
-use     work.common_primitives.sync_reset;
+use     work.common_primitives.sync_reset_sc;
 use     work.eth_frame_common.byte_t;
 use     work.ptp_types.all;
 use     work.switch_types.all;
@@ -147,7 +147,7 @@ status_word <= (
     others => '0');
 
 -- Synchronize the external reset signal.
-u_rsync : sync_reset
+u_rsync : sync_reset_sc
     port map(
     in_reset_p  => reset_p,
     out_reset_p => reset_sync,

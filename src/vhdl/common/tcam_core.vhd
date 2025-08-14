@@ -369,7 +369,7 @@ gen_cam_word : for n in 0 to LUT_COUNT-1 generate
         -- (i.e., Instantiate separate DPRAM blocks for each bit/column.)
         gen_bits : if LUT_WRBIT generate
             gen_cam_bit : for b in 0 to TABLE_SIZE-1 generate
-                u_column : dpram
+                u_column : dpram_sc
                     generic map(
                     AWIDTH      => LUT_WIDTH,
                     DWIDTH      => 1)
@@ -402,7 +402,7 @@ gen_cam_word : for n in 0 to LUT_COUNT-1 generate
             end process;
 
             -- Instantiate a single lookup table for this bank.
-            u_table : dpram
+            u_table : dpram_sc
                 generic map(
                 AWIDTH      => LUT_WIDTH,
                 DWIDTH      => TABLE_SIZE)

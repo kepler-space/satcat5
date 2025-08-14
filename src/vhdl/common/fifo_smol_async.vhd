@@ -111,13 +111,13 @@ signal rd_incr  : std_logic;                    -- Read-enable
 begin
 
 -- Generate synchronous reset strobes.
-u_rst_wr : sync_reset
+u_rst_wr : sync_reset_sc
     generic map(HOLD_MIN => 3)
     port map(
     in_reset_p  => reset_p,
     out_reset_p => wr_reset,
     out_clk     => in_clk);
-u_rst_rd : sync_reset
+u_rst_rd : sync_reset_sc
     generic map(HOLD_MIN => 3)
     port map(
     in_reset_p  => reset_p,
@@ -150,7 +150,7 @@ begin
 end process;
 
 -- Memory block is implemented using LUTRAM.
-u_lutram : dpram
+u_lutram : dpram_sc
     generic map(
     AWIDTH  => DEPTH_LOG2,
     DWIDTH  => IO_WIDTH + META_WIDTH + 1)

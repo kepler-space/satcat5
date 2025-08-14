@@ -45,7 +45,7 @@ use     ieee.std_logic_1164.all;
 use     ieee.numeric_std.all;
 use     work.cfgbus_common.all;
 use     work.common_functions.all;
-use     work.common_primitives.dpram;
+use     work.common_primitives.dpram_sc;
 use     work.eth_frame_common.all;
 
 entity mac_vlan_mask is
@@ -138,7 +138,7 @@ end process;
 
 -- Lookup table for all 2^12 = 4,096 possible VID values.
 -- (Concurrent with pipeline stage 2, above.)
-u_table : dpram
+u_table : dpram_sc
     generic map(
     AWIDTH      => VLAN_VID_WIDTH,
     DWIDTH      => PORT_COUNT,

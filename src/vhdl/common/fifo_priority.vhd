@@ -101,8 +101,8 @@ subtype meta_t is std_logic_vector(META_WIDTH-1 downto 0);
 
 -- Synchronize various async inputs.
 signal sync_pause       : std_logic;
-signal sync_reset_i     : std_logic;
-signal sync_reset_o     : std_logic;
+signal sync_reset_sc_i     : std_logic;
+signal sync_reset_sc_o     : std_logic;
 
 -- Generate KEEP strobes for each input.
 signal in_final         : std_logic;
@@ -135,8 +135,8 @@ signal lo_overflow, hi_overflow : std_logic := '0';
 begin
 
 -- Top-level output signals.
-in_reset    <= sync_reset_i;
-out_reset   <= sync_reset_o;
+in_reset    <= sync_reset_sc_i;
+out_reset   <= sync_reset_sc_o;
 
 -- Synchronize the PAUSE flag.
 u_pause : sync_buffer
@@ -207,7 +207,7 @@ u_fifo_lo : entity work.fifo_packet
     in_last_revert  => lo_revert,
     in_overflow     => lo_overflow,
     in_pct_full     => in_pct_full,
-    in_reset        => sync_reset_i,
+    in_reset        => sync_reset_sc_i,
     out_clk         => out_clk,
     out_data        => lo_data,
     out_pkt_meta    => lo_meta,
@@ -215,7 +215,7 @@ u_fifo_lo : entity work.fifo_packet
     out_valid       => lo_valid,
     out_ready       => lo_ready,
     out_pause       => sync_pause,
-    out_reset       => sync_reset_o,
+    out_reset       => sync_reset_sc_o,
     reset_p         => reset_p);
 
 -- Priority system enabled?
@@ -276,7 +276,7 @@ gen_hi : if BUFF_HI_ENABLE generate
         out_aux         => strm_sel,
         out_pause       => sync_pause,
         clk             => out_clk,
-        reset_p         => sync_reset_o);
+        reset_p         => sync_reset_sc_o);
 
     -- Indicate selected stream.
     out_hipri <= not strm_sel;

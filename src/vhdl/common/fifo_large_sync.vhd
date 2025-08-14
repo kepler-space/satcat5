@@ -96,7 +96,7 @@ fifo_wr_word   <= in_last & in_meta & in_data;
 fifo_rd_next   <= out_ready and not fifo_empty;
 fifo_rd_addr_d <= fifo_rd_addr_q + u2i(fifo_rd_next);
 
-u_ram : dpram
+u_ram : dpram_sc
     generic map(
     AWIDTH  => FIFO_AWIDTH,
     DWIDTH  => FIFO_DWIDTH,

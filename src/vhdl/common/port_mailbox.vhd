@@ -141,7 +141,7 @@ tx_ctrl.reset_p <= port_reset_p;
 -- Hold port reset at least N clock cycles.
 port_areset <= cmd_reset or cfg_cmd.reset_p;
 
-u_rst : sync_reset
+u_rst : sync_reset_sc
     port map(
     in_reset_p  => port_areset,
     out_reset_p => port_reset_p,

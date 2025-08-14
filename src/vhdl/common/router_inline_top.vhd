@@ -191,7 +191,7 @@ clk_main            <= net_tx_ctrl.clk;
 -- Synchronize the master reset signal.
 reset_async <= net_rx_data.reset_p or net_tx_ctrl.reset_p or ext_reset_p;
 
-u_reset : sync_reset
+u_reset : sync_reset_sc
     port map(
     in_reset_p  => reset_async,
     out_reset_p => reset_p,

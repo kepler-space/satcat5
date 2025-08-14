@@ -183,7 +183,7 @@ u_sync_done : sync_toggle2pulse
     out_strobe  => cfg_done_c,
     out_clk     => cfg_cmd.clk);
 
-u_sync_reset : sync_reset
+u_sync_reset_sc : sync_reset_sc
     port map(
     in_reset_p  => cfg_cmd.reset_p,
     out_reset_p => ctrl_reset,

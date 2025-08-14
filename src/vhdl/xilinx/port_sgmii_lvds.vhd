@@ -155,13 +155,13 @@ u_amble_tx : entity work.eth_preamble_tx
 gen_tstamp : if VCONFIG.input_hz > 0 generate
     txrx_reset <= not clk_locked;
 
-    u_rx_treset : sync_reset
+    u_rx_treset : sync_reset_sc
         port map(
         in_reset_p  => txrx_reset,
         out_reset_p => rx_treset,
         out_clk     => gmii_rx_clk);
 
-    u_tx_treset : sync_reset
+    u_tx_treset : sync_reset_sc
         port map(
         in_reset_p  => txrx_reset,
         out_reset_p => tx_treset,

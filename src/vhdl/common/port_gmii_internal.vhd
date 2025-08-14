@@ -72,7 +72,7 @@ signal status_word      : port_status_t;
 begin
 
 -- Synchronize the external reset signal.
-u_rsync : sync_reset
+u_rsync : sync_reset_sc
     port map(
     in_reset_p  => reset_p,
     out_reset_p => reset_sync,

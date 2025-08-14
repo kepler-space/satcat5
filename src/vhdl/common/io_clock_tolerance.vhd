@@ -27,7 +27,7 @@ use     ieee.std_logic_1164.all;
 use     ieee.numeric_std.all;
 use     work.common_functions.all;
 use     work.common_primitives.sync_buffer;
-use     work.common_primitives.sync_reset;
+use     work.common_primitives.sync_reset_sc;
 
 entity io_clock_tolerance is
     generic (
@@ -91,7 +91,7 @@ out_done <= ref_done;
 out_wait <= not ref_done;
 
 -- Synchronize the reset signal.
-u_reset : sync_reset
+u_reset : sync_reset_sc
     port map(
     in_reset_p  => reset_p,
     out_reset_p => ref_reset_p,

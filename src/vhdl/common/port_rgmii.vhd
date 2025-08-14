@@ -146,7 +146,7 @@ begin
 tx_clk <= clk_txc;
 
 -- Synchronize the external reset signal.
-u_rsync : sync_reset
+u_rsync : sync_reset_sc
     port map(
     in_reset_p  => reset_p,
     out_reset_p => tx_reset,

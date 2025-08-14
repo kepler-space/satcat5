@@ -167,7 +167,8 @@ entity switch_core is
     PTP_MIXED_STEP  : boolean := true;  -- Support PTP format conversion?
     MAC_TABLE_EDIT  : boolean := true;  -- Manual read/write of MAC table?
     MAC_TABLE_SIZE  : positive := 64;   -- Max stored MAC addresses
-    PRI_TABLE_SIZE  : natural := 16);   -- Max high-priority EtherTypes
+    PRI_TABLE_SIZE  : natural := 16;    -- Max high-priority EtherTypes
+    USE_SYNC_RESET  : boolean := false);-- Use core_sreset instead of core_reset_p
     port (
     -- Switch ports (0-1 Gbps)
     ports_rx_data   : in  array_rx_m2s(PORT_COUNT-1 downto 0) := (others => RX_M2S_IDLE);
@@ -192,7 +193,8 @@ entity switch_core is
 
     -- System interface.
     core_clk        : in  std_logic;    -- Core datapath clock
-    core_reset_p    : in  std_logic);   -- Core async reset
+    core_reset_p    : in  std_logic;    -- Core async reset
+    core_sreset     : in  std_logic);   -- Core synchronous reset (to core_clk)
 end switch_core;
 
 architecture switch_core of switch_core is
@@ -384,11 +386,17 @@ begin
 end process;
 
 -- Synchronize the external reset signal.
-u_rsync : sync_reset
-    port map(
-    in_reset_p  => core_reset_p,
-    out_reset_p => core_reset_sync,
-    out_clk     => core_clk);
+sync_reset_sc_gen : if not USE_SYNC_RESET generate
+    u_rsync : sync_reset_sc
+        port map(
+            in_reset_p  => core_reset_p,
+            out_reset_p => core_reset_sync,
+            out_clk     => core_clk);
+end generate;
+
+no_sync_reset_sc_gen : if USE_SYNC_RESET generate
+    core_reset_sync <= core_sreset;
+end generate;
 
 ----------------------------- INPUT LOGIC ---------------------------
 -- For each 1Gbps input port...

@@ -200,12 +200,12 @@ begin
 
 -- Synchronize the reset signal with each clock domain.
 reset_a <= reset_p or wdog_reset;
-u_reset_in : sync_reset
+u_reset_in : sync_reset_sc
     port map(
     in_reset_p  => reset_a,
     out_reset_p => reset_i,
     out_clk     => in_clk);
-u_reset_out : sync_reset
+u_reset_out : sync_reset_sc
     port map(
     in_reset_p  => reset_a,
     out_reset_p => reset_o,
@@ -459,7 +459,7 @@ rd_addr_u   <= to_unsigned(rd_addr, ADDR_WIDTH);
 rd_nlast_u  <= to_01_vec(rd_data(rd_data'left downto FIFO_DWIDTH));
 rd_nlast_i  <= u2i(rd_nlast_u);
 
-u_ram : dpram
+u_ram : dpram_sc
     generic map(
     AWIDTH  => ADDR_WIDTH,
     DWIDTH  => FIFO_TOTAL,

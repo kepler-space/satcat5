@@ -103,7 +103,7 @@ txb_ctrl.txerr      <= '0';
 txb_ctrl.reset_p    <= reset_sync;
 
 -- Re-synchronize the reset signal.
-u_rsync : sync_reset
+u_rsync : sync_reset_sc
     port map(
     in_reset_p  => reset_p,
     out_reset_p => reset_sync,

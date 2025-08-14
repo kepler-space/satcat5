@@ -383,7 +383,7 @@ end process;
 -- The align_lock signal is used to drive downstream resets.  Adding a reset
 -- synchronizer ensures resets are high even if the reference clock is stopped.
 out_reset_a <= bool2bit(reset_p = '1' or align_lock = '0' or in_lock = '0');
-u_out_reset : sync_reset
+u_out_reset : sync_reset_sc
     port map (
     in_reset_p  => out_reset_a,
     out_reset_p => out_reset_p,

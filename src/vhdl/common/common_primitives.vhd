@@ -119,7 +119,7 @@ package common_primitives is
     --            Forces WR_RVAL and RD_VAL to "XXXX" during undefined states.
     --  TRIPORT = Enable the WR_RVAL port. (Otherwise constant zero.)
     --            On some platforms, this feature requires a second BRAM block.
-    component dpram is
+    component dpram_sc is
         generic (
         AWIDTH  : positive;             -- Address width (bits)
         DWIDTH  : positive;             -- Data width (bits)
@@ -220,7 +220,7 @@ package common_primitives is
     -- Reset buffer with asynchronous set, synchronous clear.
     -- Resets are held for at least the designated number of output clocks.
     -- Ensures that reset is propagated even without an output clock.
-    component sync_reset is
+    component sync_reset_sc is
         generic(
         HOLD_MIN    : integer := 7;
         KEEP_ATTR   : boolean := true);

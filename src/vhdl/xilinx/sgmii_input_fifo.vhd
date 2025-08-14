@@ -28,7 +28,7 @@ use     ieee.numeric_std.all;
 library unisim;
 use     unisim.vcomponents.all;
 use     work.common_functions.all;
-use     work.common_primitives.sync_reset;
+use     work.common_primitives.sync_reset_sc;
 use     work.common_primitives.sync_toggle2pulse;
 
 entity sgmii_input_fifo is
@@ -258,7 +258,7 @@ begin
 end process;
 
 -- Clock-crossing for the synchronous reset signal.
-u_rst : sync_reset
+u_rst : sync_reset_sc
     generic map(
     HOLD_MIN    => 3)
     port map(

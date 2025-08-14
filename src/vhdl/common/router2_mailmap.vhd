@@ -280,7 +280,7 @@ begin
 end process;
 
 -- Instantiate each memory-map buffer.
-u_rx_mmap : dpram
+u_rx_mmap : dpram_sc
     generic map(
     AWIDTH  => RAM_ADDRW,
     DWIDTH  => RAM_BYTES*8,
@@ -296,7 +296,7 @@ u_rx_mmap : dpram
     rd_val  => cfg_rx_data);
 
 gen_tx_mmap : for n in 0 to RAM_BYTES-1 generate
-    u_tx_mmap : dpram
+    u_tx_mmap : dpram_sc
         generic map(
         AWIDTH  => RAM_ADDRW,
         DWIDTH  => 8,

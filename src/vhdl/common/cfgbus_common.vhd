@@ -812,7 +812,7 @@ library ieee;
 use     ieee.std_logic_1164.all;
 use     ieee.numeric_std.all;
 use     work.cfgbus_common.all;
-use     work.common_primitives.sync_reset;
+use     work.common_primitives.sync_reset_sc;
 use     work.common_primitives.sync_toggle2pulse;
 
 entity cfgbus_register_sync is
@@ -889,7 +889,7 @@ gen1 : if cfgbus_reg_enable(DEVADDR, REGADDR) generate
         evt_rd_tog  => evt_rd_tog);
 
     -- Clock-domain crossing for the reset, read, and write strobes.
-    u_rst : sync_reset
+    u_rst : sync_reset_sc
         port map(
         in_reset_p  => cfg_cmd.reset_p,
         out_reset_p => sync_rst,
@@ -929,7 +929,7 @@ use     ieee.std_logic_1164.all;
 use     ieee.numeric_std.all;
 use     work.cfgbus_common.all;
 use     work.common_functions.all;
-use     work.common_primitives.sync_reset;
+use     work.common_primitives.sync_reset_sc;
 use     work.common_primitives.sync_toggle2pulse;
 
 entity cfgbus_register_wide is
@@ -1016,7 +1016,7 @@ gen1 : if cfgbus_reg_enable(DEVADDR, REGADDR) generate
     end process;
 
     -- Clock-domain crossing for the reset and write strobes.
-    u_rst : sync_reset
+    u_rst : sync_reset_sc
         port map(
         in_reset_p  => cfg_cmd.reset_p,
         out_reset_p => sync_rst,

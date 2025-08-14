@@ -147,7 +147,7 @@ cfg_ivec    <= to_unsigned(cfg_index, TIDX_WIDTH);
 tcam_tvec   <= to_unsigned(tcam_tidx, TIDX_WIDTH);
 scan_tvec   <= to_unsigned(scan_index, TIDX_WIDTH);
 
-u_lookup : dpram
+u_lookup : dpram_sc
     generic map(
     AWIDTH  => TIDX_WIDTH,
     DWIDTH  => OUT_WIDTH)
@@ -163,7 +163,7 @@ u_lookup : dpram
 
 -- Second copy of the lookup table for "scan" port, if enabled.
 -- (Mirrored writes ensure it has the same underlying data.)
-u_lookup2 : dpram
+u_lookup2 : dpram_sc
     generic map(
     AWIDTH  => TIDX_WIDTH,
     DWIDTH  => OUT_WIDTH)

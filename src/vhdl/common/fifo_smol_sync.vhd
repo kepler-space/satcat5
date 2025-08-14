@@ -38,7 +38,7 @@ library ieee;
 use     ieee.std_logic_1164.all;
 use     ieee.numeric_std.all;
 use     work.common_functions.all;
-use     work.common_primitives.dpram;
+use     work.common_primitives.dpram_sc;
 use     work.common_primitives.PREFER_FIFO_SREG;
 
 entity fifo_smol_sync is
@@ -217,7 +217,7 @@ gen_bram : if not FIFO_SREG generate
         delta <= wr_addr_d + not rd_addr_d; -- Difference -1
 
         -- Instantiate platform-specific RAM block.
-        u_bram : dpram
+        u_bram : dpram_sc
             generic map(
             AWIDTH  => DEPTH_LOG2,
             DWIDTH  => in_word'length,

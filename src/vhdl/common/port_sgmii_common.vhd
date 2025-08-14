@@ -133,12 +133,12 @@ hs_cfg_test : sync_buffer
     out_clk     => tx_clk);
 
 -- Synchronize the reset signal in each clock domain.
-sync_reset_tx : sync_reset
+sync_reset_sc_tx : sync_reset_sc
     port map(
     in_reset_p  => reset_p,
     out_reset_p => tx_reset_p,
     out_clk     => tx_clk);
-sync_reset_rx : sync_reset
+sync_reset_sc_rx : sync_reset_sc
     port map(
     in_reset_p  => reset_p,
     out_reset_p => rx_reset_p,

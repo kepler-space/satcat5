@@ -20,7 +20,7 @@ library ieee;
 use     ieee.std_logic_1164.all;
 use     ieee.numeric_std.all;
 use     work.common_functions.all;
-use     work.common_primitives.sync_reset;
+use     work.common_primitives.sync_reset_sc;
 use     work.common_primitives.sync_toggle2pulse;
 
 entity io_clock_detect is
@@ -95,7 +95,7 @@ begin
 end process;
 
 -- Bring the HALT flag back into the test-clock domain.
-u_reset : sync_reset
+u_reset : sync_reset_sc
     port map(
     in_reset_p  => halt_ref,
     out_reset_p => halt_tst,

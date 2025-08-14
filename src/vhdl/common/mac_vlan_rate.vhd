@@ -65,7 +65,7 @@ use     ieee.std_logic_1164.all;
 use     ieee.numeric_std.all;
 use     work.cfgbus_common.all;
 use     work.common_functions.all;
-use     work.common_primitives.dpram;
+use     work.common_primitives.dpram_sc;
 use     work.eth_frame_common.all;
 
 entity mac_vlan_rate is
@@ -275,7 +275,7 @@ mod_dei     <= vlan_get_dei(mod_vtag);
 --  * Parameter BRAM operates in core and ConfigBus clock domains.
 --  * Counter BRAM operates entirely in the core clock domain.
 --  * Reads are staggerred to allow precompute of fixed parameters.
-u_bram_param : dpram
+u_bram_param : dpram_sc
     generic map(
     AWIDTH  => VLAN_VID_WIDTH,
     DWIDTH  => PARAM_WIDTH,
@@ -290,7 +290,7 @@ u_bram_param : dpram
     rd_en   => query0_en,
     rd_val  => read_params);
 
-u_bram_count : dpram
+u_bram_count : dpram_sc
     generic map(
     AWIDTH  => VLAN_VID_WIDTH,
     DWIDTH  => ACCUM_WIDTH,
