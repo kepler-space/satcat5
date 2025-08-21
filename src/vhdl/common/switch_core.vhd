@@ -147,6 +147,7 @@ entity switch_core is
     SUPPORT_PTP     : boolean := false; -- Support precise frame timestamps?
     SUPPORT_VLAN    : boolean := false; -- Support or ignore 802.1q VLAN tags?
     MISS_BCAST      : boolean := true;  -- Broadcast or drop unknown MAC?
+    IGMP_TIMEOUT    : positive := 63;   -- Timeout for stale entries
     ALLOW_JUMBO     : boolean := false; -- Allow jumbo frames? (Size up to 9038 bytes)
     ALLOW_RUNT      : boolean := false; -- DEPRECATED. Same as ALLOW_RUNT_IN + ALLOW_RUNT_OUT.
     ALLOW_RUNT_IN   : boolean := false; -- Allow incoming runt frames? (Size < 64 bytes)
@@ -548,6 +549,7 @@ u_mac : entity work.mac_core
     SUPPORT_VPORT   => SUPPORT_VLAN,
     SUPPORT_VRATE   => SUPPORT_VLAN,
     MISS_BCAST      => bool2bit(MISS_BCAST),
+    IGMP_TIMEOUT    => IGMP_TIMEOUT,
     MIN_FRM_BYTES   => get_min_frame,
     MAX_FRM_BYTES   => get_max_frame,
     MAC_TABLE_SIZE  => MAC_TABLE_SIZE,
