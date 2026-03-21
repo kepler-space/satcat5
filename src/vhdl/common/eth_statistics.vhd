@@ -402,17 +402,17 @@ begin
 
         -- Working counters are updated after each event.
         wrk_err_mii      <= accum_err(
-            wrk_err_mii,    evt_mii_err,    stats_req_tx);
+            wrk_err_mii,    evt_mii_err,    stats_req_st);
         wrk_err_ovr_tx   <= accum_err(
-            wrk_err_ovr_tx, evt_ovr_tx,     stats_req_tx);
+            wrk_err_ovr_tx, evt_ovr_tx,     stats_req_st);
         wrk_err_ovr_rx   <= accum_err(
-            wrk_err_ovr_rx, evt_ovr_rx,     stats_req_tx);
+            wrk_err_ovr_rx, evt_ovr_rx,     stats_req_st);
         wrk_err_pkt      <= accum_err(
-            wrk_err_pkt,    evt_pkt_err,    stats_req_tx);
+            wrk_err_pkt,    evt_pkt_err,    stats_req_st);
         wrk_err_ptp_tx   <= accum_err(
-            wrk_err_ptp_tx, evt_ptp_tx_err, stats_req_tx);
+            wrk_err_ptp_tx, evt_ptp_tx_err, stats_req_st);
         wrk_err_ptp_rx   <= accum_err(
-            wrk_err_ptp_rx, evt_ptp_rx_err, stats_req_tx);
+            wrk_err_ptp_rx, evt_ptp_rx_err, stats_req_st);
     end if;
 end process;
 
