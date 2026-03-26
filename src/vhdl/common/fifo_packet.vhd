@@ -139,6 +139,9 @@ end function;
 signal reset_a      : std_logic;        -- Global reset (asynchronous)
 signal reset_i      : std_logic;        -- Global reset (input clock)
 signal reset_o      : std_logic;        -- Global reset (output clock)
+signal reset_p_i    : std_logic;        -- reset_p (input clock)
+signal reset_p_o    : std_logic;        -- reset_p (output clock)
+signal wdog_reset_i : std_logic;        -- wdog_reset (output clock)
 signal wdog_reset   : std_logic := '0'; -- Flag in output clock
 
 -- State synchronized to main input.
@@ -198,18 +201,40 @@ signal out_pkt_rd   : std_logic;
 
 begin
 
--- Synchronize the reset signal with each clock domain.
-reset_a <= reset_p or wdog_reset;
-u_reset_in : sync_reset_sc
+
+-- Synchronize each reset signal to the necessary domains, then combine into global resets on the in/out_clks.
+--  reset_p may be asynchronous or may be on an existing clock.
+--  wdog_reset is on out_clk.
+u_wdog_reset_in : sync_reset_sc
     port map(
-    in_reset_p  => reset_a,
-    out_reset_p => reset_i,
+    in_reset_p  => wdog_reset,
+    out_reset_p => wdog_reset_i,
+    out_clk     => in_clk);
+u_reset_p_in : sync_reset_sc
+    port map(
+    in_reset_p  => reset_p,
+    out_reset_p => reset_p_i,
     out_clk     => in_clk);
 u_reset_out : sync_reset_sc
     port map(
-    in_reset_p  => reset_a,
-    out_reset_p => reset_o,
+    in_reset_p  => reset_p,
+    out_reset_p => reset_p_o,
     out_clk     => out_clk);
+
+p_reset_sync_in : process(in_clk)
+begin
+    if rising_edge(in_clk) then
+        reset_i <= reset_p_i or wdog_reset_i;
+    end if;
+end process;
+
+p_reset_sync_out : process(out_clk)
+begin
+    if rising_edge(out_clk) then
+        reset_o <= reset_p_o or wdog_reset;
+    end if;
+end process;
+
 
 -- Top-level status strobes:
 in_reset    <= reset_i;
