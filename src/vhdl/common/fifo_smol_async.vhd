@@ -99,6 +99,10 @@ signal wr_next2 : addr_t;                       -- Write address + 2
 signal wr_limit : addr_t;                       -- Sync'd read address
 signal wr_incr  : std_logic;                    -- Write-enable
 
+-- Without KEEP here, it appears Vivado is optimizing out the safe multi-bit CDC with Gray codes, leading to CDC-10 warnings.
+attribute KEEP : string;
+attribute KEEP of wr_addr : signal is boolean_to_string(true);
+
 -- Read-side control.
 signal rd_reset : std_logic;                    -- Sync reset
 signal rd_valid : std_logic := '0';             -- FIFO non-empty?
