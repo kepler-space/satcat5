@@ -208,6 +208,11 @@ sync_t2p : sync_toggle2pulse
 end;
 
 ---------------------------------------------------------------------
+------------------------TODO(kreider)--------------------------------
+-- Prior to submitting pull request to satcat5, need to make this  --
+-- same fix in the other versions of this *_sync.vhd file. Also    --
+-- run example project build and confirm constraints are ok.       --
+---------------------------------------------------------------------
 
 library IEEE;
 use     IEEE.STD_LOGIC_1164.ALL;
