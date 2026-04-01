@@ -226,50 +226,47 @@ end sync_reset_sc;
 
 architecture sync_reset_sc of sync_reset_sc is
 
-signal sync_reset_sc_p : std_logic := '0';
-signal out_reset_i  : std_logic := '1';
-signal countdown    : integer range 0 to HOLD_MIN := HOLD_MIN;
+function set_hold_min_i(hold_min : integer) return integer is
+begin
+    if hold_min > 1 then return hold_min; else return 2; end if;
+end function;
 
--- Force retention of the reset signal?
-attribute DONT_TOUCH : string;
-attribute DONT_TOUCH of out_reset_i : signal is boolean_to_string(KEEP_ATTR);
-attribute KEEP : string;
-attribute KEEP of out_reset_i : signal is boolean_to_string(KEEP_ATTR);
+-- For a valid synchronizer, HOLD_MIN must be at least 2.
+constant HOLD_MIN_I : integer := set_hold_min_i(HOLD_MIN);
+
+
+signal sync_reset_sc_p : std_logic := '0';
+signal out_reset_i  : std_logic_vector(HOLD_MIN_I-1 downto 0) := (others => '1');
+
+-- Keep in_reset_p for use by xdc set_false_path constraint
+attribute KEEP : boolean;
+attribute KEEP of in_reset_p : signal is KEEP_ATTR;
 
 -- Custom attribute makes it easy to "set_false_path" on cross-clock signals.
 -- (Vivado explicitly DOES NOT allow such constraints to be set in the HDL.)
 attribute satcat5_cross_clock_dst : boolean;
-attribute satcat5_cross_clock_dst of countdown, in_reset_p, out_reset_i : signal is true;
+attribute satcat5_cross_clock_dst of in_reset_p : signal is true;
+
+-- See UG912. ASYNC_REG specifies that out_reset_i is a synchronizing register
+-- within a synchronization chain.
+attribute ASYNC_REG : string;
+attribute ASYNC_REG of out_reset_i : signal is "TRUE";
 
 begin
-
--- Synchronize the reset signal.
-u_sync : sync_buffer
-    port map(
-    in_flag     => in_reset_p,
-    out_flag    => sync_reset_sc_p,
-    out_clk     => out_clk,
-    reset_p     => '0');
 
 -- Asynchronous set, synchronous clear after N cycles.
 p_count : process(out_clk, in_reset_p)
 begin
     if (in_reset_p = '1') then
-        out_reset_i <= '1';
-        countdown   <= HOLD_MIN;
+        out_reset_i <= (others => '1');
     elsif rising_edge(out_clk) then
-        if (sync_reset_sc_p = '1') then
-            out_reset_i <= '1';
-            countdown   <= HOLD_MIN;
-        elsif (countdown /= 0) then
-            out_reset_i <= '1';
-            countdown   <= countdown - 1;
-        else
-            out_reset_i <= '0';
-        end if;
+        out_reset_i(0) <= in_reset_p;
+        for n in 1 to HOLD_MIN_I-1 loop
+            out_reset_i(n) <= out_reset_i(n-1);
+        end loop;
     end if;
 end process;
 
-out_reset_p <= out_reset_i;
+out_reset_p <= out_reset_i(HOLD_MIN_I-1);
 
 end;
