@@ -206,16 +206,19 @@ begin
 --  reset_p may be asynchronous or may be on an existing clock.
 --  wdog_reset is on out_clk.
 u_wdog_reset_in : sync_reset_sc
+    generic map(HOLD_MIN => 3)
     port map(
     in_reset_p  => wdog_reset,
     out_reset_p => wdog_reset_i,
     out_clk     => in_clk);
 u_reset_p_in : sync_reset_sc
+    generic map(HOLD_MIN => 3)
     port map(
     in_reset_p  => reset_p,
     out_reset_p => reset_p_i,
     out_clk     => in_clk);
 u_reset_out : sync_reset_sc
+    generic map(HOLD_MIN => 3)
     port map(
     in_reset_p  => reset_p,
     out_reset_p => reset_p_o,
