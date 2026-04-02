@@ -39,13 +39,16 @@ use     work.eth_frame_common.all;
 
 entity eth_frame_vtag is
     generic (
+    -- Set to FALSE if port data clock is not the same as cfg_cmd clock. In that case,
+    -- synchronize cfgbus register data from cfg_cmd.clk onto clk.
+    PORT_ON_CFG_CLK : boolean := true;
     -- To disable ConfigBus, set DEV_ADDR = CFGBUS_ADDR_NONE.
-    DEV_ADDR    : integer;          -- ConfigBus device address
-    REG_ADDR    : integer;          -- ConfigBus register address
-    PORT_INDEX  : integer := -1;    -- Port index (for ConfigBus filtering)
-    IO_BYTES    : positive := 1;    -- Width of main data port
+    DEV_ADDR        : integer;          -- ConfigBus device address
+    REG_ADDR        : integer;          -- ConfigBus register address
+    PORT_INDEX      : integer := -1;    -- Port index (for ConfigBus filtering)
+    IO_BYTES        : positive := 1;    -- Width of main data port
     -- Default policy on reset, or adjust through ConfigBus.
-    VTAG_POLICY : tag_policy_t := VTAG_ADMIT_ALL);
+    VTAG_POLICY     : tag_policy_t := VTAG_ADMIT_ALL);
     port (
     -- Input data stream
     in_data     : in  std_logic_vector(8*IO_BYTES-1 downto 0);
@@ -115,7 +118,11 @@ signal tag_prewr    : std_logic;
 signal tag_final    : std_logic;
 
 -- ConfigBus interface
-signal cfg_policy   : tag_policy_t := VTAG_POLICY;
+signal cfg_policy             : tag_policy_t := VTAG_POLICY;
+signal cfg_policy_i           : tag_policy_t := VTAG_POLICY;
+signal cfg_changed_strb       : std_logic := '0';
+signal cfg_settings_out       : std_logic_vector(1 downto 0);
+signal latch_cfg_settings_out : std_logic;
 
 begin
 
@@ -279,15 +286,64 @@ gen_cfg : if cfgbus_reg_enable(DEV_ADDR, REG_ADDR) generate
         if rising_edge(cfg_cmd.clk) then
             if (cfg_cmd.reset_p = '1') then
                 -- Global reset reverts to required default under 802.1Q.
-                cfg_policy <= VTAG_POLICY;
+                cfg_policy_i     <= VTAG_POLICY;
+                cfg_changed_strb <= '0';
             elsif (cfgbus_wrcmd(cfg_cmd, DEV_ADDR, REG_ADDR)) then
+                cfg_changed_strb <= '0';
                 -- Ignore writes unless they have a matching port-index.
                 if (u2i(cfg_cmd.wdata(31 downto 24)) = PORT_INDEX) then
-                    cfg_policy <= cfg_cmd.wdata(21 downto 20);
+                    cfg_policy_i     <= cfg_cmd.wdata(21 downto 20);
+                    -- For simplicity, do not check for changed data, and always set this upon write.
+                    cfg_changed_strb <= '1';
                 end if;
             end if;
         end if;
     end process;
+
+    -- If port clock is not the same as cfg clock, need to synchronize the policy setting onto
+    -- the port clock for use in p_ctrl process above. This assumes the settings will be changed
+    -- infrequently enough that we do not have to check for in_complete before writing a new setting.
+    gen_cfgbus_sync : if not PORT_ON_CFG_CLK generate
+
+        -- TODO(kreider): Temporary solution. Cannot merge this to Satcat repo.
+        u_xclock_handshake : xclock_handshake
+            generic map(
+                DATA_WIDTH      => VTAG_POLICY'length,
+                LATCH_INPUT     => 1, -- Latch in_data upon cfg_changed_strb
+                SYNC_STAGES     => 2,
+                INITIAL_VALUE   => VTAG_POLICY)
+            port map(
+                -- Input side: on cfg_cmd.clk
+                in_clk          => cfg_cmd.clk,
+                in_resetn       => not cfg_cmd.reset_p,
+                in_start        => cfg_changed_strb,
+                in_data         => cfg_policy_i,
+                in_complete     => open, -- Ignored, assuming data changes infrequently
+
+                -- Output side: on clk (port clock)
+                out_clk         => clk,
+                out_resetn      => not reset_p,
+                out_data_enable => latch_cfg_settings_out,
+                out_data        => cfg_settings_out,
+                out_ready       => bool2bit(true));
+
+        p_latch_cfg_settings : process (clk)
+        begin
+            if rising_edge(clk) then
+                if (reset_p = '1') then
+                    cfg_policy  <= VTAG_POLICY;
+                else
+                    if (latch_cfg_settings_out = '1') then
+                        cfg_policy  <= cfg_settings_out;
+                    end if;
+                end if;
+            end if;
+        end process;
+
+    -- If port clock and cfg clock are the same, can use cfg_policy_i directly.
+    else generate
+        cfg_policy  <= cfg_policy_i;
+    end generate;
 end generate;
 
 end eth_frame_vtag;

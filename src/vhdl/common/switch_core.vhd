@@ -141,6 +141,7 @@ use     work.switch_types.all;
 
 entity switch_core is
     generic (
+    PORT_ON_CFG_CLK : boolean := true;  -- Port data stream on same clock as cfg_cmd? (Used for VLAN CDC)
     DEV_ADDR        : integer := CFGBUS_ADDR_NONE;  -- ConfigBus device address
     CORE_CLK_HZ     : positive;         -- Rate of core_clk (Hz)
     SUPPORT_PAUSE   : boolean := true;  -- Support or ignore 802.3x "PAUSE" frames?
@@ -411,6 +412,7 @@ gen_input : for n in PORT_COUNT-1 downto 0 generate
     -- Frame validity check and other ingress processing.
     u_input : entity work.switch_port_rx
         generic map(
+        PORT_ON_CFG_CLK => PORT_ON_CFG_CLK,
         DEV_ADDR        => DEV_ADDR,
         CORE_CLK_HZ     => CORE_CLK_HZ,
         PORT_COUNT      => PORT_TOTAL,
@@ -466,6 +468,7 @@ gen_xinput : for n in PORTX_COUNT-1 downto 0 generate
     -- Frame validity check and other ingress processing.
     u_input : entity work.switch_port_rx
         generic map(
+        PORT_ON_CFG_CLK => PORT_ON_CFG_CLK,
         DEV_ADDR        => DEV_ADDR,
         CORE_CLK_HZ     => CORE_CLK_HZ,
         PORT_COUNT      => PORT_TOTAL,
@@ -655,6 +658,7 @@ gen_output : for n in PORT_COUNT-1 downto 0 generate
     -- Output FIFO and other processing for each port.
     u_output : entity work.switch_port_tx
         generic map(
+        PORT_ON_CFG_CLK => PORT_ON_CFG_CLK,
         DEV_ADDR        => DEV_ADDR,
         PORT_INDEX      => n,
         SUPPORT_PTP     => SUPPORT_PTP,
@@ -706,6 +710,7 @@ gen_xoutput : for n in PORTX_COUNT-1 downto 0 generate
     -- Output FIFO and other processing for each port.
     u_output : entity work.switch_port_tx
         generic map(
+        PORT_ON_CFG_CLK => PORT_ON_CFG_CLK,
         DEV_ADDR        => DEV_ADDR,
         PORT_INDEX      => PORT_COUNT+n,
         SUPPORT_PTP     => SUPPORT_PTP,

@@ -45,14 +45,17 @@ use     work.eth_frame_common.all;
 
 entity eth_frame_vstrip is
     generic (
+    -- Set to FALSE if port data clock is not the same as cfg_cmd clock. In that case,
+    -- synchronize cfgbus register data from cfg_cmd.clk onto clk.
+    PORT_ON_CFG_CLK : boolean := true;
     -- To disable ConfigBus, set DEV_ADDR = CFGBUS_ADDR_NONE.
-    DEVADDR     : integer;          -- ConfigBus device address
-    REGADDR     : integer;          -- ConfigBus register address
-    IO_BYTES    : positive;         -- Width of main data ports
-    PORT_INDEX  : integer := -1;    -- Port index (for ConfigBus filtering)
-    VID_DEFAULT : vlan_vid_t := x"001";
+    DEVADDR         : integer;          -- ConfigBus device address
+    REGADDR         : integer;          -- ConfigBus register address
+    IO_BYTES        : positive;         -- Width of main data ports
+    PORT_INDEX      : integer := -1;    -- Port index (for ConfigBus filtering)
+    VID_DEFAULT     : vlan_vid_t := x"001";
     -- Default policy on reset, or adjust through ConfigBus.
-    VTAG_POLICY : tag_policy_t := VTAG_ADMIT_ALL);
+    VTAG_POLICY     : tag_policy_t := VTAG_ADMIT_ALL);
     port (
     -- Main input stream
     in_data     : in  std_logic_vector(8*IO_BYTES-1 downto 0);
@@ -132,8 +135,14 @@ signal out_meta_i   : frm_result_t;
 signal out_last_i   : std_logic;
 
 -- ConfigBus interface
-signal cfg_policy   : tag_policy_t := VTAG_POLICY;
-signal cfg_default  : vlan_hdr_t := VTAG_DEFAULT;
+signal cfg_policy             : tag_policy_t := VTAG_POLICY;
+signal cfg_policy_i           : tag_policy_t := VTAG_POLICY;
+signal cfg_default            : vlan_hdr_t := VTAG_DEFAULT;
+signal cfg_default_i          : vlan_hdr_t := VTAG_DEFAULT;
+signal cfg_changed_strb       : std_logic := '0';
+signal cfg_settings_in        : std_logic_vector(17 downto 0);
+signal cfg_settings_out       : std_logic_vector(17 downto 0);
+signal latch_cfg_settings_out : std_logic;
 
 begin
 
@@ -370,6 +379,9 @@ out_result  <= (commit  => out_last_i and out_meta_i.commit,
                 reason  => out_meta_i.reason);
 out_vtag    <= out_meta_v(VLAN_HDR_WIDTH-1 downto 0);
 
+
+cfg_settings_in <= cfg_policy_i & cfg_default_i;
+
 -- Optional ConfigBus interface handling.
 gen_cfg : if cfgbus_reg_enable(DEVADDR, REGADDR) generate
     p_cfg : process(cfg_cmd.clk)
@@ -377,17 +389,71 @@ gen_cfg : if cfgbus_reg_enable(DEVADDR, REGADDR) generate
         if rising_edge(cfg_cmd.clk) then
             if (cfg_cmd.reset_p = '1') then
                 -- Global reset reverts to required default under 802.1Q.
-                cfg_policy  <= VTAG_POLICY;
-                cfg_default <= VTAG_DEFAULT;
+                cfg_policy_i     <= VTAG_POLICY;
+                cfg_default_i    <= VTAG_DEFAULT;
+                cfg_changed_strb <= '0';
             elsif (cfgbus_wrcmd(cfg_cmd, DEVADDR, REGADDR)) then
+                cfg_changed_strb <= '0';
                 -- Ignore writes unless they have a matching port-index.
                 if (u2i(cfg_cmd.wdata(31 downto 24)) = PORT_INDEX) then
-                    cfg_policy  <= cfg_cmd.wdata(17 downto 16);
-                    cfg_default <= cfg_cmd.wdata(15 downto 0);
+                    cfg_policy_i  <= cfg_cmd.wdata(17 downto 16);
+                    cfg_default_i <= cfg_cmd.wdata(15 downto 0);
+                    -- For simplicity, do not check for changed data, and always set this upon write.
+                    cfg_changed_strb <= '1';
                 end if;
             end if;
         end if;
     end process;
+
+    -- If port clock is not the same as cfg clock, need to synchronize the policy/TCI settings onto
+    -- the port clock for use in p_keep process above. This assumes the settings will be changed
+    -- infrequently enough that we do not have to check for in_complete before writing a new setting.
+    gen_cfgbus_sync : if not PORT_ON_CFG_CLK generate
+
+        -- TODO(kreider): Temporary solution. Cannot merge this to Satcat repo.
+        u_xclock_handshake : xclock_handshake
+            generic map(
+                DATA_WIDTH      => VTAG_POLICY'length + VTAG_DEFAULT'length,
+                LATCH_INPUT     => 1,  -- Latch in_data upon cfg_changed_strb
+                SYNC_STAGES     => 2,
+                INITIAL_VALUE   => VTAG_POLICY & VTAG_DEFAULT)
+            port map(
+                -- Input side: on cfg_cmd.clk
+                in_clk          => cfg_cmd.clk,
+                in_resetn       => not cfg_cmd.reset_p,
+                in_start        => cfg_changed_strb,
+                in_data         => cfg_settings_in,
+                in_complete     => open, -- Ignored, assuming data changes infrequently
+
+                -- Output side: on clk (port clock)
+                out_clk         => clk,
+                out_resetn      => not reset_p,
+                out_data_enable => latch_cfg_settings_out,
+                out_data        => cfg_settings_out,
+                out_ready       => bool2bit(true));
+
+
+        p_latch_cfg_settings : process (clk)
+        begin
+            if rising_edge(clk) then
+                if (reset_p = '1') then
+                    cfg_policy  <= VTAG_POLICY;
+                    cfg_default <= VTAG_DEFAULT;
+                else
+                    if (latch_cfg_settings_out = '1') then
+                        cfg_policy  <= cfg_settings_out(17 downto 16);
+                        cfg_default <= cfg_settings_out(15 downto 0);
+                    end if;
+                end if;
+            end if;
+        end process;
+
+    -- If port clock and cfg clock are the same, can use cfg_policy_i and cfg_default_i directly.
+    else generate
+        cfg_policy  <= cfg_policy_i;
+        cfg_default <= cfg_default_i;
+    end generate;
+
 end generate;
 
 end eth_frame_vstrip;
