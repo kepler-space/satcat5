@@ -41,7 +41,7 @@ signal out_combo     : std_logic;
 -- delays don't eat into time needed for resolving metastability.
 -- Note: No impact on timing analysis; refer to UG912.
 attribute ASYNC_REG : string;
-attribute ASYNC_REG of in_toggle_d1, in_toggle_d2 : signal is "TRUE";
+attribute ASYNC_REG of D0_reg, D1_reg, D2_reg : label is "TRUE";
 
 -- Custom attribute makes it easy to "set_false_path" on cross-clock signals.
 -- (Vivado explicitly DOES NOT allow such constraints to be set in the HDL.)
@@ -128,7 +128,7 @@ signal in_flag_d2   : std_logic;
 -- delays don't eat into time needed for resolving metastability.
 -- Note: No impact on timing analysis; refer to UG912.
 attribute ASYNC_REG : string;
-attribute ASYNC_REG of in_flag_d1, in_flag_d2 : signal is "TRUE";
+attribute ASYNC_REG of D0_reg, D1_reg : label is "TRUE";
 
 -- Custom attribute makes it easy to "set_false_path" on cross-clock signals.
 -- (Vivado explicitly DOES NOT allow such constraints to be set in the HDL.)
