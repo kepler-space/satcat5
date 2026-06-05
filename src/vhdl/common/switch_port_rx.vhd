@@ -26,6 +26,7 @@ use     work.switch_types.all;
 
 entity switch_port_rx is
     generic (
+    PORT_ON_CFG_CLK : boolean;      -- Port data stream on same clock as cfg_cmd? (Used for VLAN CDC)
     DEV_ADDR        : integer;      -- ConfigBus device address
     CORE_CLK_HZ     : positive;     -- Rate of core_clk (Hz)
     PORT_COUNT      : positive;     -- Total ports in this switch
@@ -189,23 +190,24 @@ u_frmchk : entity work.eth_frame_check
 gen_vlan1 : if SUPPORT_VLAN generate
     u_vlan : entity work.eth_frame_vstrip
         generic map(
-        DEVADDR     => DEV_ADDR,
-        REGADDR     => SW_ADDR_VLAN_PORT,
-        IO_BYTES    => INPUT_BYTES,
-        PORT_INDEX  => PORT_INDEX)
+        PORT_ON_CFG_CLK => PORT_ON_CFG_CLK,
+        DEVADDR         => DEV_ADDR,
+        REGADDR         => SW_ADDR_VLAN_PORT,
+        IO_BYTES        => INPUT_BYTES,
+        PORT_INDEX      => PORT_INDEX)
         port map(
-        in_data     => chk_data,
-        in_nlast    => chk_nlast,
-        in_write    => chk_write,
-        in_result   => chk_result,
-        out_data    => vlan_data,
-        out_vtag    => rx_meta.vtag,
-        out_nlast   => vlan_nlast,
-        out_write   => vlan_write,
-        out_result  => vlan_result,
-        cfg_cmd     => cfg_cmd,
-        clk         => rx_clk,
-        reset_p     => rx_reset_i);
+        in_data         => chk_data,
+        in_nlast        => chk_nlast,
+        in_write        => chk_write,
+        in_result       => chk_result,
+        out_data        => vlan_data,
+        out_vtag        => rx_meta.vtag,
+        out_nlast       => vlan_nlast,
+        out_write       => vlan_write,
+        out_result      => vlan_result,
+        cfg_cmd         => cfg_cmd,
+        clk             => rx_clk,
+        reset_p         => rx_reset_i);
 end generate;
 
 gen_vlan0 : if not SUPPORT_VLAN generate

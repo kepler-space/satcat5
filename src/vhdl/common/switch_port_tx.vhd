@@ -26,6 +26,7 @@ use     work.switch_types.all;
 
 entity switch_port_tx is
     generic (
+    PORT_ON_CFG_CLK : boolean;      -- Port data stream on same clock as cfg_cmd? (Used for VLAN CDC)
     DEV_ADDR        : integer;      -- ConfigBus device address
     PORT_INDEX      : natural;      -- Index for current port
     SUPPORT_PTP     : boolean;      -- Support precise frame timestamps?
@@ -234,25 +235,26 @@ end generate;
 gen_vlan1 : if SUPPORT_VLAN generate
     u_vtag : entity work.eth_frame_vtag
         generic map(
-        DEV_ADDR    => DEV_ADDR,
-        REG_ADDR    => SW_ADDR_VLAN_PORT,
-        PORT_INDEX  => PORT_INDEX,
-        IO_BYTES    => OUTPUT_BYTES)
+        PORT_ON_CFG_CLK => PORT_ON_CFG_CLK,
+        DEV_ADDR        => DEV_ADDR,
+        REG_ADDR        => SW_ADDR_VLAN_PORT,
+        PORT_INDEX      => PORT_INDEX,
+        IO_BYTES        => OUTPUT_BYTES)
         port map(
-        in_data     => ptp_data,
-        in_vtag     => ptp_vtag,
-        in_error    => ptp_error,
-        in_nlast    => ptp_nlast,
-        in_valid    => ptp_valid,
-        in_ready    => ptp_ready,
-        out_data    => vlan_data,
-        out_error   => vlan_error,
-        out_nlast   => vlan_nlast,
-        out_valid   => vlan_valid,
-        out_ready   => vlan_ready,
-        cfg_cmd     => cfg_cmd,
-        clk         => tx_clk,
-        reset_p     => port_reset_p);
+        in_data         => ptp_data,
+        in_vtag         => ptp_vtag,
+        in_error        => ptp_error,
+        in_nlast        => ptp_nlast,
+        in_valid        => ptp_valid,
+        in_ready        => ptp_ready,
+        out_data        => vlan_data,
+        out_error       => vlan_error,
+        out_nlast       => vlan_nlast,
+        out_valid       => vlan_valid,
+        out_ready       => vlan_ready,
+        cfg_cmd         => cfg_cmd,
+        clk             => tx_clk,
+        reset_p         => port_reset_p);
 end generate;
 
 gen_vlan0 : if not SUPPORT_VLAN generate
