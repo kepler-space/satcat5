@@ -26,21 +26,21 @@ use     work.switch_types.all;
 
 entity switch_port_tx is
     generic (
-    PORT_ON_CFG_CLK : boolean;      -- Port data stream on same clock as cfg_cmd? (Used for VLAN CDC)
-    DEV_ADDR        : integer;      -- ConfigBus device address
-    PORT_INDEX      : natural;      -- Index for current port
-    SUPPORT_PTP     : boolean;      -- Support precise frame timestamps?
-    SUPPORT_VLAN    : boolean;      -- Support or ignore 802.1q VLAN tags?
-    ALLOW_JUMBO     : boolean;      -- Allow jumbo frames? (Size up to 9038 bytes)
-    ALLOW_RUNT      : boolean;      -- Allow runt frames? (Size < 64 bytes)
-    INPUT_HAS_FCS   : boolean;      -- Does input stream include FCS field?
-    PTP_DOPPLER     : boolean;      -- Enable Doppler-TLV tags?
-    PTP_STRICT      : boolean;      -- Drop frames with missing timestamps?
-    INPUT_BYTES     : positive;     -- Width of shared pipeline
-    OUTPUT_BYTES    : positive;     -- Width of output pipeline
-    HBUF_KBYTES     : natural;      -- High-priority output buffer (kilobytes)
-    OBUF_KBYTES     : positive;     -- Normal-priority output buffer (kilobytes)
-    OBUF_PACKETS    : positive);    -- Output buffer max packets
+    PORT_ON_CFG_CLK : boolean := true;  -- Port data stream on same clock as cfg_cmd? (Used for VLAN CDC)
+    DEV_ADDR        : integer;          -- ConfigBus device address
+    PORT_INDEX      : natural;          -- Index for current port
+    SUPPORT_PTP     : boolean;          -- Support precise frame timestamps?
+    SUPPORT_VLAN    : boolean;          -- Support or ignore 802.1q VLAN tags?
+    ALLOW_JUMBO     : boolean;          -- Allow jumbo frames? (Size up to 9038 bytes)
+    ALLOW_RUNT      : boolean;          -- Allow runt frames? (Size < 64 bytes)
+    INPUT_HAS_FCS   : boolean;          -- Does input stream include FCS field?
+    PTP_DOPPLER     : boolean;          -- Enable Doppler-TLV tags?
+    PTP_STRICT      : boolean;          -- Drop frames with missing timestamps?
+    INPUT_BYTES     : positive;         -- Width of shared pipeline
+    OUTPUT_BYTES    : positive;         -- Width of output pipeline
+    HBUF_KBYTES     : natural;          -- High-priority output buffer (kilobytes)
+    OBUF_KBYTES     : positive;         -- Normal-priority output buffer (kilobytes)
+    OBUF_PACKETS    : positive);        -- Output buffer max packets
     port (
     -- Input from shared pipeline, referenced to core_clk.
     in_data         : in  std_logic_vector(8*INPUT_BYTES-1 downto 0);
