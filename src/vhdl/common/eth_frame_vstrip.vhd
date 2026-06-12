@@ -144,6 +144,31 @@ signal cfg_settings_in        : std_logic_vector(17 downto 0);
 signal cfg_settings_out       : std_logic_vector(17 downto 0);
 signal latch_cfg_settings_out : std_logic;
 
+-- Component declaration for xclock_handshake SV module
+-- TODO(kreider): Temporary solution. Cannot merge this to Satcat repo.
+component xclock_handshake is
+    generic (
+        SYNC_STAGES   : integer := 2;
+        DATA_WIDTH    : integer := 0;
+        LATCH_INPUT   : integer := 0;
+        LATCH_OUTPUT  : integer := 1;
+        INITIAL_VALUE : std_logic_vector(DATA_WIDTH-1 downto 0) := (others => 'X')
+    );
+    port (
+        in_clk          : in  std_logic;
+        in_resetn       : in  std_logic;
+        in_start        : in  std_logic;
+        in_data         : in  std_logic_vector(DATA_WIDTH-1 downto 0);
+        in_complete     : out std_logic;
+
+        out_clk         : in  std_logic;
+        out_resetn      : in  std_logic;
+        out_data_enable : out std_logic;
+        out_data        : out std_logic_vector(DATA_WIDTH-1 downto 0);
+        out_ready       : in  std_logic
+    );
+end component;
+
 begin
 
 -- Normalize input stream so NLAST field isn't doing double-duty.

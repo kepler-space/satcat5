@@ -26,23 +26,23 @@ use     work.switch_types.all;
 
 entity switch_port_rx is
     generic (
-    PORT_ON_CFG_CLK : boolean;      -- Port data stream on same clock as cfg_cmd? (Used for VLAN CDC)
-    DEV_ADDR        : integer;      -- ConfigBus device address
-    CORE_CLK_HZ     : positive;     -- Rate of core_clk (Hz)
-    PORT_COUNT      : positive;     -- Total ports in this switch
-    PORT_INDEX      : natural;      -- Index for current port
-    PTP_DOPPLER     : boolean;      -- Enable Doppler-TLV tags?
-    STRIP_FCS       : boolean;      -- Strip FCS from incoming frames?
-    SUPPORT_LOG     : boolean;      -- Support packet logging diagnostics?
-    SUPPORT_PAUSE   : boolean;      -- Support or ignore 802.3x PAUSE frames?
-    SUPPORT_PTP     : boolean;      -- Support precise frame timestamps?
-    SUPPORT_VLAN    : boolean;      -- Support or ignore 802.1q VLAN tags?
-    ALLOW_JUMBO     : boolean;      -- Allow jumbo frames? (Size up to 9038 bytes)
-    ALLOW_RUNT      : boolean;      -- Allow runt frames? (Size < 64 bytes)
-    INPUT_BYTES     : positive;     -- Width of input pipeline
-    OUTPUT_BYTES    : positive;     -- Width of shared pipeline
-    IBUF_KBYTES     : positive;     -- Input buffer size (kilobytes)
-    IBUF_PACKETS    : positive);    -- Input buffer max packets
+    PORT_ON_CFG_CLK : boolean := true;  -- Port data stream on same clock as cfg_cmd? (Used for VLAN CDC)
+    DEV_ADDR        : integer;          -- ConfigBus device address
+    CORE_CLK_HZ     : positive;         -- Rate of core_clk (Hz)
+    PORT_COUNT      : positive;         -- Total ports in this switch
+    PORT_INDEX      : natural;          -- Index for current port
+    PTP_DOPPLER     : boolean;          -- Enable Doppler-TLV tags?
+    STRIP_FCS       : boolean;          -- Strip FCS from incoming frames?
+    SUPPORT_LOG     : boolean;          -- Support packet logging diagnostics?
+    SUPPORT_PAUSE   : boolean;          -- Support or ignore 802.3x PAUSE frames?
+    SUPPORT_PTP     : boolean;          -- Support precise frame timestamps?
+    SUPPORT_VLAN    : boolean;          -- Support or ignore 802.1q VLAN tags?
+    ALLOW_JUMBO     : boolean;          -- Allow jumbo frames? (Size up to 9038 bytes)
+    ALLOW_RUNT      : boolean;          -- Allow runt frames? (Size < 64 bytes)
+    INPUT_BYTES     : positive;         -- Width of input pipeline
+    OUTPUT_BYTES    : positive;         -- Width of shared pipeline
+    IBUF_KBYTES     : positive;         -- Input buffer size (kilobytes)
+    IBUF_PACKETS    : positive);        -- Input buffer max packets
     port (
     -- Input from the assigned port (compatible with 1 GbE and 10 GbE)
     rx_clk          : in  std_logic;
